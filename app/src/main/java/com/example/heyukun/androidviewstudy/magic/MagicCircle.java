@@ -1,7 +1,5 @@
 package com.example.heyukun.androidviewstudy.magic;
 
-import android.animation.Animator;
-import android.animation.AnimatorSet;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -10,15 +8,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PointF;
-import android.os.Build;
+import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewPropertyAnimator;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AnimationUtils;
 
 /**
  * Created by heyukun on 2017/11/24.
@@ -33,11 +28,18 @@ public class MagicCircle extends View {
 
     private Paint mPaint;
     private int mHeight;
+    //绘制圆的半径为设置高度1／3 * 0.98
     private float mRadius;
-    private PointF p0, p1, p2, p3;
+    //y轴向下为正
+    private PointF mPyTop, mPxRight, mPyBottom, mPxLeft;
     private float rightRadio = 1;
     private float leftRadio = 1;
     private float mCtrRadius;
+    private ValueAnimator mValueAnimator;
+
+
+    @ColorInt
+    private int[] mColors = {Color.RED, Color.BLUE, Color.GREEN};
 
 
     public MagicCircle(Context context) {
@@ -58,7 +60,7 @@ public class MagicCircle extends View {
     private void init() {
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL);
-        mPaint.setColor(Color.RED);
+        mPaint.setColor(Color.TRANSPARENT);
         mPaint.setAntiAlias(true);
 
     }
@@ -67,7 +69,7 @@ public class MagicCircle extends View {
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         mHeight = Math.min(w, h);
-        mRadius = (float) (mHeight / 3 * 0.95);
+        mRadius = (float) (mHeight / 3 * 0.98);
         mCtrRadius = mRadius * C;
 
         initPoints();
@@ -76,11 +78,10 @@ public class MagicCircle extends View {
 
     //初始化数据点的坐标
     private void initPoints() {
-        p0 = new PointF(0, mRadius);
-        p1 = new PointF(mRadius, 0);
-        p2 = new PointF(0, -mRadius);
-        p3 = new PointF(-mRadius, 0);
-
+        mPyTop = new PointF(0, mRadius);
+        mPxRight = new PointF(mRadius, 0);
+        mPyBottom = new PointF(0, -mRadius);
+        mPxLeft = new PointF(-mRadius, 0);
     }
 
 
@@ -90,30 +91,44 @@ public class MagicCircle extends View {
         canvas.translate(mHeight / 2, mHeight / 2);
         Path path = new Path();
 
-        path.moveTo(p0.x, p0.y);
+        path.moveTo(mPyTop.x, mPyTop.y);
 
-        p1.set(mRadius * rightRadio, 0);
-        p3.set(-mRadius * leftRadio, 0);
+        mPxRight.set(mRadius * rightRadio, 0);
+        mPxLeft.set(-mRadius * leftRadio, 0);
 
-        path.cubicTo(mCtrRadius * rightRadio, p0.y, p1.x, mCtrRadius, p1.x, p1.y);
-        path.cubicTo(p1.x, -mCtrRadius, mCtrRadius * rightRadio, p2.y, p2.x, p2.y);
+        path.cubicTo(mCtrRadius * rightRadio, mPyTop.y, mPxRight.x, mCtrRadius, mPxRight.x, mPxRight.y);
+        path.cubicTo(mPxRight.x, -mCtrRadius, mCtrRadius * rightRadio, mPyBottom.y, mPyBottom.x, mPyBottom.y);
 
-        path.cubicTo(-mCtrRadius * leftRadio, p2.y, p3.x, -mCtrRadius, p3.x, p3.y);
+        path.cubicTo(-mCtrRadius * leftRadio, mPyBottom.y, mPxLeft.x, -mCtrRadius, mPxLeft.x, mPxLeft.y);
 
-        path.cubicTo(p3.x, mCtrRadius, -mCtrRadius * leftRadio, p0.y, p0.x, p0.y);
+        path.cubicTo(mPxLeft.x, mCtrRadius, -mCtrRadius * leftRadio, mPyTop.y, mPyTop.x, mPyTop.y);
 
         canvas.drawPath(path, mPaint);
     }
 
 
+    /**
+     * 开始移动
+     *
+     * @param range 移动范围
+     */
     public void startMove(final int range) {
-        mPaint.setColor(Color.RED);
         this.setClickable(false);
 
-        final ValueAnimator valueAnimator = ValueAnimator.ofInt(Color.RED, Color.BLUE);
-        valueAnimator.setEvaluator(new ArgbEvaluator());
-        valueAnimator.setDuration(2000);
-        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+        if (mValueAnimator != null && mValueAnimator.isRunning()) {
+            mValueAnimator.end();
+            mValueAnimator.cancel();
+        }
+        if (mColors.length == 1) {
+            mValueAnimator = ValueAnimator.ofInt(mColors[0], mColors[0]);
+        } else {
+            mValueAnimator = ValueAnimator.ofInt(mColors);
+        }
+
+        mValueAnimator.setEvaluator(new ArgbEvaluator());
+        mValueAnimator.setDuration(2000);
+        mValueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+        mValueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
                 float fraction = animation.getAnimatedFraction();
@@ -133,7 +148,7 @@ public class MagicCircle extends View {
                 } else {
                     leftRadio = 1;
                     rightRadio = 1;
-                    valueAnimator.cancel();
+                    mValueAnimator.cancel();
                     MagicCircle.this.setClickable(true);
                 }
 
@@ -141,14 +156,33 @@ public class MagicCircle extends View {
             }
         });
 
-        valueAnimator.start();
+        mValueAnimator.start();
 
         this.animate()
                 .setDuration(2000)
                 .setInterpolator(new AccelerateDecelerateInterpolator())
-                .translationX(range)
-                .start();
+                .translationX(range).start();
 
+
+    }
+
+    public void setCircleColors(@ColorInt int... colors) {
+        if (colors == null || colors.length == 0) {
+            return;
+        }
+        mColors = colors;
+    }
+
+
+    /**
+     * 开始移动
+     *
+     * @param range  移动范围
+     * @param colors 渐变颜色
+     */
+    public void startMove(int range, @ColorInt int... colors) {
+        setCircleColors(colors);
+        startMove(range);
     }
 
 

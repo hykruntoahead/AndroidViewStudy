@@ -1,5 +1,6 @@
 package com.example.heyukun.androidviewstudy.magic;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
@@ -20,6 +21,7 @@ public class MagicActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.actvity_magic);
         magicCircle = findViewById(R.id.mc);
+        magicCircle.setCircleColors(Color.GREEN);
         findViewById(R.id.btn_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
