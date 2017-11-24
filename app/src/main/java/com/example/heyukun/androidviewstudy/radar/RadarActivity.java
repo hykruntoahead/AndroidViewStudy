@@ -1,14 +1,14 @@
-package com.example.heyukun.androidviewstudy;
+package com.example.heyukun.androidviewstudy.radar;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.example.heyukun.androidviewstudy.path.EasyRadarChart;
+import com.example.heyukun.androidviewstudy.R;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class RadarActivity extends AppCompatActivity {
 
     private EasyRadarChart mEasyRadarChart;
     private Timer mTimer;
@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_radar);
 
         mEasyRadarChart = findViewById(R.id.erc);
         mEasyRadarChart.setPolygonText("政治", "武力", "智力", "魅力", "统帅", "义理");

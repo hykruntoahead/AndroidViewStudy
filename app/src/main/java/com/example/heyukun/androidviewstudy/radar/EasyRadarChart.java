@@ -1,4 +1,4 @@
-package com.example.heyukun.androidviewstudy.path;
+package com.example.heyukun.androidviewstudy.radar;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -17,6 +17,8 @@ import java.util.Arrays;
 
 /**
  * Created by heyukun on 2017/11/22.
+ * <p>
+ * 简单雷达图
  */
 
 public class EasyRadarChart extends View {
@@ -28,7 +30,7 @@ public class EasyRadarChart extends View {
     private Paint mGradePointPaint;
     private int mWidth;
     private float mRadius;
-    private final int COUNT = 6;
+    private final static int COUNT = 6;
     private int textSize = 32;
     private int maxGrade = 100;
 
