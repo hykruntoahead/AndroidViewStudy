@@ -122,7 +122,6 @@ public class SearchView extends View implements View.OnClickListener{
         mAnimatorListener = new ValueAnimator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-
             }
 
             @Override
