@@ -27,7 +27,7 @@ public class SearchActivity extends FragmentActivity {
                             public void run() {
                                 mSearchView.endSearching();
                             }
-                        },6000);
+                        },5000);
             }
         });
 

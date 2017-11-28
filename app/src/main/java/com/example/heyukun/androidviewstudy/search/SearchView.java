@@ -246,6 +246,7 @@ public class SearchView extends View implements View.OnClickListener{
 
     public void endSearching(){
         if(mRunningAnimator!=null) {
+            mRunningAnimator.setupEndValues();
             mRunningAnimator.end();
         }
     }
@@ -259,4 +260,24 @@ public class SearchView extends View implements View.OnClickListener{
         void onStartClick();
     }
 
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        Log.d("mStartAnimator","onDetachedFromWindow");
+        if(mRunningAnimator!=null){
+            mRunningAnimator.cancel();
+        }
+        if(mStartAnimator != null){
+            mStartAnimator.cancel();
+        }
+        if(mEndingAnimator != null){
+            mEndingAnimator.cancel();
+        }
+
+        if(mHandler!=null){
+            mHandler.removeMessages(1);
+            mHandler.removeCallbacksAndMessages(null);
+        }
+    }
 }
